@@ -16,6 +16,46 @@ from ..config import config_db
 
 bp = Blueprint('documents', __name__, url_prefix='/api/v1/documents')
 
+def annotate(text, language):
+    """
+    This function calls the document enrichment service and returns the annotated data of the text you provided.
+
+    Parameters:
+        text : string 
+            text that you wish to annotate
+        language : 2 char string
+            language code of the language of the text
+
+    Returns the dictionary with annotated data of the text.
+    """
+
+    url = 'http://localhost:2704/annotate'
+    request = requests.post(
+        url,
+        data=[
+            'id' : 1,
+            'text_ {}'.format(language) : text,
+            'languages' : ['en'],
+            'ontology' : 'ALL',
+            'indices' : False,
+            'numericClassifiers' : False,
+            'spaces' : False,
+            'wordAnnotations' : False,
+            'synonyms' : False,
+            'allowAlternateNames' : False,
+            'hierarchy' : False
+        ]
+    )
+
+    return request.json()
+
+@bp.route('/add_document', methods=['POST'])
+def add_document():
+    """
+    placeholder
+    """
+    pass
+
 @bp.route('/', methods=['GET'])
 def get_documents():
     """
