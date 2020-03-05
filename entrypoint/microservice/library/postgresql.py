@@ -49,11 +49,12 @@ class PostgresQL:
             self.connection.close()
 
 
-    def execute(self, statement):
+    def execute(self, statement, params=None):
         """Execute the provided statement
 
         Args:
             statement (str): The postgresql statement to be executed.
+            params (tuple): values to be formatted into the statement. (Default = None)
 
         Returns:
             list: a list of tuples containing the postgresql records.
@@ -62,10 +63,16 @@ class PostgresQL:
         if self.cursor is None:
             raise Exception("The connection is not established")
         else:
-            self.cursor.execute(statement)
-            num_fields = len(self.cursor.description)
-            field_names = [i[0] for i in self.cursor.description]
-            return [{ field_names[i]: row[i] for i in range(num_fields) } for row in self.cursor.fetchall()]
+            if params is None:
+                self.cursor.execute(statement)
+            else:
+                self.cursor.execute(statement, params)
+            if self.cursor.description is not None:
+                num_fields = len(self.cursor.description)
+                field_names = [i[0] for i in self.cursor.description]
+                return [{ field_names[i]: row[i] for i in range(num_fields) } for row in self.cursor.fetchall()]
+            else:
+                return None
 
 
     def get_documents_from_db(self, document_ids):
@@ -80,19 +87,11 @@ class PostgresQL:
             success (boolean), list of dictionaries of document data if the extraction from the database was successful.
         """
 
-        if self.cursor is None:
-            return False, {'Error' : 'The connection could not be established'}
-
         statement = "SELECT * FROM documents WHERE document_id IN %s;"
         try:
-            self.cursor.execute(statement, (tuple(document_ids),))
-        except:
+            documents = self.execute(statement, [tuple(document_ids)])
+        except Exception as e:
             return False, {'Error' : 'You provided invalid document ids.'}
-
-        # Enumerating the fields
-        num_fields = len(self.cursor.description)
-        field_names = [i[0] for i in self.cursor.description]
-        documents = [{ field_names[i]: row[i] for i in range(num_fields) } for row in self.cursor.fetchall()]
 
         # Cleaning the output:
         # - removing fulltext field
