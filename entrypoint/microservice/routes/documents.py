@@ -52,6 +52,26 @@ def annotate(text, language):
 
     return request.json()
 
+@bp.route('/annotate', methods=['POST'])
+def annotate_text():
+    """
+    Using POST method here since maximum length of the URL is limited and therefore 
+    we would otherways have to limit maximum size of the text.
+    
+    Provide JSON with the following values:
+    {
+        "text" : string,
+        "language" : 2 char string (language code of the language)
+    }
+
+    You will receive in response the annotated data of the text.
+    """
+
+    text = request.json.get('text', 'You didnt give `text` parameter.')
+    language = request.json.get('language', 'en')
+
+    return annotate(text, language)
+
 @bp.route('/add_document', methods=['POST'])
 def add_document():
     """
