@@ -24,6 +24,8 @@ class ProductionConfig(Config):
     DB_PORT = os.getenv('PROD_DATABASE_PORT')
     DB_PASSWORD = os.getenv('PROD_DATABASE_PASSWORD')
     DB_NAME = os.getenv('PROD_DATABASE_NAME')
+    SERVICE_ENRICHMENT_HOST = os.getenv('PROD_ENRICHMENT_HOST')
+    SERVICE_ENRICHMENT_PORT = os.getenv('PROD_ENRICHMENT_PORT')
 
 class DevelopmentConfig(Config):
     """Development configuration"""
@@ -36,6 +38,8 @@ class DevelopmentConfig(Config):
     DB_PORT = os.getenv('DEV_DATABASE_PORT')
     DB_PASSWORD = os.getenv('DEV_DATABASE_PASSWORD')
     DB_NAME = os.getenv('DEV_DATABASE_NAME')
+    SERVICE_ENRICHMENT_HOST = os.getenv('DEV_ENRICHMENT_HOST')
+    SERVICE_ENRICHMENT_PORT = os.getenv('DEV_ENRICHMENT_PORT')
 
 class TestingConfig(Config):
     """Testing configuration"""

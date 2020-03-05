@@ -29,10 +29,13 @@ def annotate(text, language):
     Returns the dictionary with annotated data of the text.
     """
 
-    url = 'http://localhost:2704/annotate'
+    HOST = app.config.get('SERVICE_ENRICHMENT_HOST')
+    PORT = app.config.get('SERVICE_ENRICHMENT_port')
+
+    url = 'http://{}:{}/annotate'.format(HOST, PORT)
     request = requests.post(
         url,
-        data=[
+        data={
             'id' : 1,
             'text_ {}'.format(language) : text,
             'languages' : ['en'],
@@ -44,7 +47,7 @@ def annotate(text, language):
             'synonyms' : False,
             'allowAlternateNames' : False,
             'hierarchy' : False
-        ]
+        }
     )
 
     return request.json()
@@ -54,7 +57,8 @@ def add_document():
     """
     placeholder
     """
-    pass
+    annotate('some text', 'en')
+    return jsonify('Working'), 200
 
 @bp.route('/', methods=['GET'])
 def get_documents():

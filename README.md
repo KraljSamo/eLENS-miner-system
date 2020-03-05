@@ -151,12 +151,16 @@ You can also use custom host and port.
   DEV_DATABASE_PORT =
   DEV_DATABASE_PASSWORD =
   DEV_DATABASE_NAME =
+  DEV_ENRICHMENT_HOST =
+  DEV_ENRICHMENT_PORT =
 
   PROD_DATABASE_USER =
   PROD_DATABASE_HOST =
   PROD_DATABASE_PORT =
   PROD_DATABASE_PASSWORD =
   PROD_DATABASE_NAME =
+  PROD_ENRICHMENT_HOST =
+  PROD_ENRICHMENT_PORT =
   ```
 * Navigame back into `entrypoint` folder
 * Run the main service with
