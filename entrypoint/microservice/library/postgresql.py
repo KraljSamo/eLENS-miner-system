@@ -73,6 +73,24 @@ class PostgresQL:
                 return [{ field_names[i]: row[i] for i in range(num_fields) } for row in self.cursor.fetchall()]
             else:
                 return None
+        
+    def executemany(self, statement, values=[]):
+        """
+        Implements self.cursor.executemany(). Provide statement and list of values to be used.
+
+        Example:
+        statement = "INSERT INTO test (id, ime) VALUES (%s, %s)"
+        values = [(3, 'Andraz'), (4, 'Blaz'), (5, 'Cene')]
+
+        This function will add all those pairs into the table `test`.
+        """
+
+        if self.cursor is None:
+            raise Exception("The connection is not established")
+        self.cursor.executemany(statement, values)
+        # Commit the changes to the database
+        self.connection.commit() 
+        return True
 
 
     def get_documents_from_db(self, document_ids):
@@ -103,3 +121,47 @@ class PostgresQL:
             documents[i].pop('fulltext')
 
         return True, documents
+    
+    def add_document_to_db(self, document_data):
+        """
+        Function will add document with `document_data` to the database. If any of the fields are not given
+        those fields will be set to None. You have to provide atleast title of the document.
+
+        This method will also try to call annotations service and also add those annotations.
+        """
+
+        metadata_fields = ['title', 'document_source', 'fulltext', 'abstract', 'date',
+        'entryintoforce', 'fulltextlink', 'sourcename', 'sourcelink', 'status']
+
+        add_metadata_statement = "INSERT INTO documents ("
+        add_metadata_statement += ', '.join(metadata_fields)
+        add_metadata_statement += ') VALUES (' + ', '.join(['%s']*len(metadata_fields))
+        add_metadata_statement += ') ON CONFLICT DO NOTHING RETURNING document_id'
+
+        data = [document_data.get(attribute, None) for attribute in metadata_fields]
+        returned_data = self.execute(add_metadata_statement, data)
+        self.connection.commit()
+
+        document_id = returned_data[0]['document_id']
+
+        add_authors_statement = "INSERT INTO document_authors (document_id, author) VALUES (%s, %s) ON CONFLICT DO NOTHING"
+        author_values = [(document_id, author) for author in document_data.get('authors', [])]
+        self.executemany(add_authors_statement, author_values)
+
+        add_areas_statement = "INSERT INTO document_areas (document_id, area) VALUES (%s, %s) ON CONFLICT DO NOTHING"
+        areas_values = [(document_id, area) for area in document_data.get('areas', [])]
+        self.executemany(add_areas_statement, areas_values)
+
+        add_keywords_statement = "INSERT INTO document_keywords (document_id, keyword) VALUES (%s, %s) ON CONFLICT DO NOTHING"
+        keywords_values = [(document_id, area) for area in document_data.get('keywords', [])]
+        self.executemany(add_keywords_statement, keywords_values)
+
+        add_subjects_statement = "INSERT INTO document_subjects (document_id, subject) VALUES (%s, %s) ON CONFLICT DO NOTHING"
+        subjects_values = [(document_id, area) for area in document_data.get('subjects', [])]
+        self.executemany(add_subjects_statement, subjects_values)
+
+        add_participants_statement = "INSERT INTO document_participants (document_id, participant) VALUES (%s, %s) ON CONFLICT DO NOTHING"
+        participants_values = [(document_id, area) for area in document_data.get('participants', [])]
+        self.executemany(add_participants_statement, participants_values)
+
+        # TODO add annotations, ontology, wikipedia concepts to the db.

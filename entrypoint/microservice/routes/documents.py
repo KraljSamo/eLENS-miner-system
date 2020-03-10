@@ -57,7 +57,7 @@ def annotate_text():
     """
     Using POST method here since maximum length of the URL is limited and therefore 
     we would otherways have to limit maximum size of the text.
-    
+
     Provide JSON with the following values:
     {
         "text" : string,
@@ -72,12 +72,39 @@ def annotate_text():
 
     return annotate(text, language)
 
-@bp.route('/add_document', methods=['POST'])
+@bp.route('/add', methods=['POST'])
 def add_document():
     """
-    placeholder
+    At this point you will be able to add document to the database. Provide the following data:
+    {
+        "title" : title of the document,
+        "document_source" : source of the document (for example could be ECOLEX, EURLEX, ...),
+        "fulltext" : text of the document,
+        "abstract" : short abstract of the document,
+        "date" : date,
+        "entryintoforce" : when did document became active?,
+        "fulltextlink" : link to the page with text of the document
+        "sourcename" : name of the source,
+        "sourcelink" : link to the source,
+        "status" : active/not active,
+        "areas" : [list of areas related to the document],
+        "authors" : [list of authors],
+        "keywords" : [list of keywords],
+        "participants" : [list of participants],
+        "subjects" : [list of subjects]
+    }
+
+    You have to provide title of the documents. Other fields will be set to NULL 
+    if you will not provide them.
     """
-    annotate('some text', 'en')
+    
+    title = request.json.get('title', '')
+    if len(title) == 0:
+        return jsonify({'Error' : 'Invalid document data'}), 400
+
+    db = config_db.get_db()
+    db.add_document_to_db(request.json)
+
     return jsonify('Working'), 200
 
 @bp.route('/', methods=['GET'])
@@ -104,7 +131,7 @@ def get_documents():
         )
 
     db = config_db.get_db()
-    # We allows a maximum of 100 documents per query.
+    # We allow a maximum of 100 documents per query.
     success, output = db.get_documents_from_db(document_ids.split(',')[:100])
     if success:
         return jsonify({
