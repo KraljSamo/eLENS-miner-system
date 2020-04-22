@@ -77,16 +77,16 @@ def add_document():
     """
     At this point you will be able to add document to the database. Provide the following data:
     {
-        "title" : title of the document,
+        "title" : title of the document, - not null
         "document_source" : source of the document (for example could be ECOLEX, EURLEX, ...),
         "fulltext" : text of the document,
         "abstract" : short abstract of the document,
-        "date" : date,
-        "entryintoforce" : when did document became active?,
-        "fulltextlink" : link to the page with text of the document
+        "date" : date, - not null
+        "entryintoforce" : when did document became active?, -not null
+        "fulltextlink" : link to the page with text of the document -not null
         "sourcename" : name of the source,
         "sourcelink" : link to the source,
-        "status" : active/not active,
+        "status" : active/not active, -not null
         "areas" : [list of areas related to the document],
         "authors" : [list of authors],
         "keywords" : [list of keywords],
